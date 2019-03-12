@@ -77,21 +77,35 @@ def segment():
         _sliceSongs(infolder,outfolder)
 
 
-def covertToSpectrogram(inpath,outpath):
+# Convert segments into spectrograms
+def _convertToSpectrogram(inpath,outpath):
     pylab.axis('off')
     pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
 
-    S = librosa.feature.melspectrogram(y=sig, sr=fs)
-    librosa.display.specshow(librosa.power_to_db(S, ref=np.max))
-    pylab.savefig(outpath, bbox_inches=None, pad_inches=0)
-    pylab.close()
+    files = os.listdir(inpath)
+    files = [file for file in files if file.endswith(".mp3")]
+
+    for song in files:
+        songfile = os.path.join(inpath,song)
+        sig, fs = librosa.load(songfile, mono=True)
+        S = librosa.feature.melspectrogram(y=sig, sr=fs)
+        librosa.display.specshow(librosa.power_to_db(S, ref=np.max))
+
+        name = re.sub(".mp3",".png",song)
+        outfile = os.path.join(outpath,name)
+
+        if not os.path.isdir(outpath):
+            # If genre folder doesn't exist create one.
+            os.makedirs(outpath)
+
+        pylab.savefig(outfile, bbox_inches=None, pad_inches=0)
+        pylab.close()
 
 
-
-# for song in glob.glob(os.path.join(path,'*.mp3')) :
-
-    
-#     sig, fs = librosa.load(song, mono=True) 
-#     plot()
-#     count+=1
-
+# This is the method that should be called to 
+# create spectrograms from the segments
+def createSpectrogram():
+    for genre in os.listdir(config.cropPath):
+        infolder = os.path.join(config.slicesPath,genre)
+        outfolder = os.path.join(config.spectrograms,genre)
+        _convertToSpectrogram(infolder,outfolder)

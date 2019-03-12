@@ -1,4 +1,6 @@
 # Paths
 rawDataPath = "data/raw"
 spectrograms = "data/spectrograms"
-datasetPath = "data/dataset"
+slicesPath = "data/slices"
+cropPath = "data/cropped"
+datasetPath = "data/datasets"

@@ -79,13 +79,13 @@ def segment():
 
 # Convert segments into spectrograms
 def _convertToSpectrogram(inpath,outpath):
-    pylab.axis('off')
-    pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
 
     files = os.listdir(inpath)
     files = [file for file in files if file.endswith(".mp3")]
 
     for song in files:
+        pylab.axis('off')
+        pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
         songfile = os.path.join(inpath,song)
         sig, fs = librosa.load(songfile, mono=True)
         S = librosa.feature.melspectrogram(y=sig, sr=fs)
@@ -98,7 +98,8 @@ def _convertToSpectrogram(inpath,outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
 
-        pylab.savefig(outfile, bbox_inches=None, pad_inches=0)
+        pylab.savefig(outfile, bbox_inches=None, pad_inches=0,
+                frameon=None)
         pylab.close()
 
 

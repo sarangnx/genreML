@@ -4,3 +4,5 @@ spectrograms = "data/spectrograms"
 slicesPath = "data/slices"
 cropPath = "data/cropped"
 datasetPath = "data/datasets"
+
+validation_ratio = 0.2 

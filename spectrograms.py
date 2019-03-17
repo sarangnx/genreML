@@ -4,8 +4,7 @@
 import subprocess
 import os
 import re
-import matplotlib
-import pylab
+import matplotlib.pyplot as plt
 import librosa
 import librosa.display
 import glob
@@ -14,7 +13,7 @@ import numpy as np
 import config
 
 
-# Function to crop 30 seconds out of songs
+# Function to crop 90 seconds out of songs
 # inpath - path to raw files directory
 # outpath - path to cropped directory
 def _cropSongs(inpath,outpath):
@@ -28,13 +27,12 @@ def _cropSongs(inpath,outpath):
         if not os.path.isdir(outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
-        # command to trim out 10 seconds from beginning 
-        # and crop the song to 30 seconds
-        cmd = "ffmpeg -y -ss 10 -t 30 -i \"{}\" -c copy \"{}\"".format(infile,outfile)
+        # crop the song to 90 seconds
+        cmd = "ffmpeg -y -t 90 -i \"{}\" -c copy \"{}\"".format(infile,outfile)
         subprocess.call(cmd,shell=True)
 
 
-# Slice the songs to 100ms windows
+# Slice the songs to 30s windows
 # inpath - path to cropped files directory
 # outpath - path to slices directory
 def _sliceSongs(inpath,outpath):
@@ -53,8 +51,8 @@ def _sliceSongs(inpath,outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
         
-        # Command to create segments of duration 0.1s ( = 100ms )
-        cmd = "ffmpeg -y -i \"{}\" -f segment -segment_time 0.1 -c copy \"{}%03d.mp3\"".format(infile,outfile)
+        # Command to create segments of duration 10s
+        cmd = "ffmpeg -y -i \"{}\" -f segment -segment_time 30 -c copy \"{}%03d.mp3\"".format(infile,outfile)
         subprocess.call(cmd,shell=True)
 
 
@@ -75,6 +73,7 @@ def segment():
         infolder = os.path.join(config.cropPath,genre)
         outfolder = os.path.join(config.slicesPath,genre)
         _sliceSongs(infolder,outfolder)
+        _cleanup(outfolder)
 
 
 # Convert segments into spectrograms
@@ -84,12 +83,13 @@ def _convertToSpectrogram(inpath,outpath):
     files = [file for file in files if file.endswith(".mp3")]
 
     for song in files:
-        pylab.axis('off')
-        pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
+        # pylab.axis('off')
+        # pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
+
         songfile = os.path.join(inpath,song)
         sig, fs = librosa.load(songfile, mono=True)
         S = librosa.feature.melspectrogram(y=sig, sr=fs)
-        librosa.display.specshow(librosa.power_to_db(S, ref=np.max))
+        librosa.display.specshow(librosa.power_to_db(S, ref=np.max), y_axis='mel', fmax=8000, x_axis='time')
 
         name = re.sub(".mp3",".png",song)
         outfile = os.path.join(outpath,name)
@@ -97,10 +97,10 @@ def _convertToSpectrogram(inpath,outpath):
         if not os.path.isdir(outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
-
-        pylab.savefig(outfile, bbox_inches=None, pad_inches=0,
-                frameon=None)
-        pylab.close()
+        plt.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=False)
+        plt.close()
+        # pylab.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=None)
+        # pylab.close()
 
 
 # This is the method that should be called to 
@@ -110,3 +110,13 @@ def createSpectrogram():
         infolder = os.path.join(config.slicesPath,genre)
         outfolder = os.path.join(config.spectrograms,genre)
         _convertToSpectrogram(infolder,outfolder)
+
+
+# Unwanted 4th file is created for some songs
+# Files having only <1kb of size, and ends with 3.mp3
+def _cleanup(path):
+    files = [ file for file in os.listdir(path) if file.endswith("3.mp3")]
+    for file in files:
+        os.remove(os.path.join(path,file))
+        print(os.path.join(path,file))
+        print("File Removed")

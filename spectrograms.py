@@ -7,8 +7,6 @@ import re
 import matplotlib.pyplot as plt
 import librosa
 import librosa.display
-import glob
-import time
 import numpy as np
 import config
 
@@ -83,8 +81,10 @@ def _convertToSpectrogram(inpath,outpath):
     files = [file for file in files if file.endswith(".mp3")]
 
     for song in files:
+        plt.figure(figsize=[10,4],frameon=False)
         plt.axis("off")
         plt.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
+        
         songfile = os.path.join(inpath,song)
         sig, fs = librosa.load(songfile, mono=True)
         S = librosa.feature.melspectrogram(y=sig, sr=fs)

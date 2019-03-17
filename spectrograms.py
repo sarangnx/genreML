@@ -83,9 +83,8 @@ def _convertToSpectrogram(inpath,outpath):
     files = [file for file in files if file.endswith(".mp3")]
 
     for song in files:
-        # pylab.axis('off')
-        # pylab.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
-
+        plt.axis("off")
+        plt.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
         songfile = os.path.join(inpath,song)
         sig, fs = librosa.load(songfile, mono=True)
         S = librosa.feature.melspectrogram(y=sig, sr=fs)
@@ -97,7 +96,7 @@ def _convertToSpectrogram(inpath,outpath):
         if not os.path.isdir(outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
-        plt.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=False)
+        plt.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=None)
         plt.close()
         # pylab.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=None)
         # pylab.close()
@@ -106,7 +105,7 @@ def _convertToSpectrogram(inpath,outpath):
 # This is the method that should be called to 
 # create spectrograms from the segments
 def createSpectrogram():
-    for genre in os.listdir(config.cropPath):
+    for genre in os.listdir(config.slicesPath):
         infolder = os.path.join(config.slicesPath,genre)
         outfolder = os.path.join(config.spectrograms,genre)
         _convertToSpectrogram(infolder,outfolder)

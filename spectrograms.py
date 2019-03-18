@@ -26,7 +26,7 @@ def _cropSongs(inpath,outpath):
             # If genre folder doesn't exist create one.
             os.makedirs(outpath)
         # crop the song to 90 seconds
-        cmd = "ffmpeg -y -t 90 -i \"{}\" -c copy \"{}\"".format(infile,outfile)
+        cmd = "ffmpeg -y -t 90 -i \"{}\" -map 0:a -c copy  -map_metadata -1 \"{}\"".format(infile,outfile)
         subprocess.call(cmd,shell=True)
 
 
@@ -98,8 +98,7 @@ def _convertToSpectrogram(inpath,outpath):
             os.makedirs(outpath)
         plt.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=None)
         plt.close()
-        # pylab.savefig(outfile, bbox_inches=None, pad_inches=0,frameon=None)
-        # pylab.close()
+        
 
 
 # This is the method that should be called to 
@@ -117,5 +116,3 @@ def _cleanup(path):
     files = [ file for file in os.listdir(path) if file.endswith("3.mp3")]
     for file in files:
         os.remove(os.path.join(path,file))
-        print(os.path.join(path,file))
-        print("File Removed")

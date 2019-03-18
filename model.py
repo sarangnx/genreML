@@ -20,7 +20,7 @@ def createModel(imageShape, numClasses):
     convnet = conv_2d(convnet,128,2,activation='relu', weights_init="Xavier")
     convnet = max_pool_2d(convnet,2)
 
-    convnet = conv_2d(convnet,256,2,activation='relu', weights_init="Xavier")
+    convnet = conv_2d(convnet,64,2,activation='relu', weights_init="Xavier")
     convnet = max_pool_2d(convnet,2)
 
     convnet = fully_connected(convnet, 512, activation='relu')

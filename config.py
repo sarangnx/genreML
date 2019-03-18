@@ -6,3 +6,4 @@ cropPath = "data/cropped"
 datasetPath = "data/datasets"
 
 validation_ratio = 0.2 
+epoch = 10

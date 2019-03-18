@@ -4,10 +4,12 @@ import spectrograms as sp
 
 from config import datasetPath
 from config import spectrograms
+from config import epoch
 
 import argparse
 import sys
 import os
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", nargs="+",
@@ -38,7 +40,23 @@ genres = [ genre for genre in  os.listdir(spectrograms)
 genreNum = len(genres)
 
 # Create Model
-# model = createModel(genres,genreNum)
+model = createModel([None,500,200,3],genreNum)
 
-# if "train" in args.mode:
-    # train()
+if "train" in args.mode:
+    
+    # Load Dataset
+    train_x, train_y, validation_x, validation_y = ds.loadDataset(datasetPath)
+
+    run_id = "Genre-" + time.time()
+    
+    # Training the model
+    print("🏋 Training Model!")
+    model.fit(train_x, train_y, n_epoch=epoch, batch_size=None, shuffle=True, 
+        validation_set=(validation_x, validation_y), 
+        snapshot_step=100, show_metric=True, run_id=run_id)
+
+    print("💃 Training Completed")
+
+    # Saving Trained Model
+    model.save("genreDNN.tfl")
+    print("💾 Model Saved!")

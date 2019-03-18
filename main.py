@@ -40,14 +40,14 @@ genres = [ genre for genre in  os.listdir(spectrograms)
 genreNum = len(genres)
 
 # Create Model
-model = createModel([None,500,200,3],genreNum)
+model = createModel([None,200,500,3],genreNum)
 
 if "train" in args.mode:
     
     # Load Dataset
     train_x, train_y, validation_x, validation_y = ds.loadDataset(datasetPath)
 
-    run_id = "Genre-" + time.time()
+    run_id = "Genre-" + str(time.time())
     
     # Training the model
     print("🏋 Training Model!")

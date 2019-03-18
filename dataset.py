@@ -13,8 +13,6 @@ import numpy as np
 import pickle
 from random import shuffle
 
-from config import datasetPath
-from config import spectrograms
 from config import validation_ratio
 
 # Load the image and return numpy data
@@ -31,7 +29,7 @@ def loadImage(filePath):
 def createDataset(inpath,outpath):
     data = []
     genres = os.listdir(inpath)
-    print(genres)
+
     for genre in genres:
         filenames = os.listdir(os.path.join(inpath, genre))
         filenames = [filename for filename in filenames if filename.endswith('.png') ]
@@ -53,10 +51,10 @@ def createDataset(inpath,outpath):
     training   = len(x) - validation
 
     # split data 
-    train_x = np.array(x[:training]).reshape([-1,256,256,1])
+    train_x = np.array(x[:training])
     train_y = np.array(y[:training])
     
-    validation_x = np.array(x[-validation:]).reshape([-1,256,256,1])
+    validation_x = np.array(x[-validation:])
     validation_y = np.array(y[-validation:])
     
     saveDataset(train_x,train_y,validation_x,validation_y,outpath)
@@ -73,5 +71,3 @@ def saveDataset(train_x,train_y,validation_x,validation_y,path):
     pickle.dump( validation_x, open( os.path.join(path,"validation_x.p") ,"wb" ))
     pickle.dump( validation_y, open( os.path.join(path,"validation_y.p") ,"wb" ))
     print("Dataset Saved")
-
-createDataset(spectrograms,datasetPath)

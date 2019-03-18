@@ -18,7 +18,7 @@ from config import validation_ratio
 # Load the image and return numpy data
 def loadImage(filePath):
     img = Image.open(filePath)
-    img = img.resize((256,256), resample=Image.ANTIALIAS)
+    img = img.resize((500,200), resample=Image.ANTIALIAS)
     imgData = np.asarray(img, dtype=np.uint8) / 255.
     # Remove Alpha Channel
     imgData = imgData[:,:,:3]
@@ -71,3 +71,17 @@ def saveDataset(train_x,train_y,validation_x,validation_y,path):
     pickle.dump( validation_x, open( os.path.join(path,"validation_x.p") ,"wb" ))
     pickle.dump( validation_y, open( os.path.join(path,"validation_y.p") ,"wb" ))
     print("Dataset Saved")
+
+
+# Function to load the saved dataset to train
+def loadDataset(path,mode="train"):
+    if mode == "train":
+        print("⌛ Loading Training and Validation set")
+        
+        train_x = pickle.load(open( os.path.join(path,"train_x.p"), "rb" ))
+        train_y = pickle.load(open( os.path.join(path,"train_y.p"), "rb" ))
+        validation_x = pickle.load(open( os.path.join(path,"validation_x.p"), "rb" ))
+        validation_y = pickle.load(open( os.path.join(path,"validation_y.p"), "rb" ))
+        
+        print("✅ Dataset Loaded.")
+        return train_x, train_y, validation_x, validation_y

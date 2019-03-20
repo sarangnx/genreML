@@ -67,7 +67,7 @@ def saveDataset(train_x,train_y,validation_x,validation_y,path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    with h5py.File(os.path.join(path,"music_data.h5"),"w")as h5file :
+    with h5py.File(os.path.join(path,"music_data.h5"),"w") as h5file :
         train = h5file.create_group("training_set")
         train.create_dataset("train_x",data=train_x)
         train.create_dataset("train_y",data=train_y)
@@ -84,10 +84,14 @@ def loadDataset(path,mode="train"):
     if mode == "train":
         print("⌛ Loading Training and Validation set")
         
-        train_x = pickle.load(open( os.path.join(path,"train_x.p"), "rb" ))
-        train_y = pickle.load(open( os.path.join(path,"train_y.p"), "rb" ))
-        validation_x = pickle.load(open( os.path.join(path,"validation_x.p"), "rb" ))
-        validation_y = pickle.load(open( os.path.join(path,"validation_y.p"), "rb" ))
+        with h5py.File(os.path.join(path,"music_data.h5"),"r") as h5file:
+            training_set = h5file["training_set"]
+            train_x = training_set["train_x"]
+            train_y = training_set["train_y"]
+
+            validation_set = h5file["validation_set"]
+            validation_x = validation_set["validation_x"]
+            validation_y = validation_set["validation_y"]
         
         print("✅ Dataset Loaded.")
         return train_x, train_y, validation_x, validation_y

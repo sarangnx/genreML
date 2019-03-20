@@ -8,7 +8,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-from PIL import Image
 import numpy as np
 import pickle
 from random import shuffle
@@ -18,28 +17,16 @@ import cv2
 from config import validation_ratio
 
 # Load the image and return numpy data
-# @profile
 def loadImage(filePath):
-    # img = Image.open(filePath)
-    # img = img.resize((500,200), resample=Image.ANTIALIAS)
-   
-    # imgData = np.asarray(img, dtype=np.uint8) / 255.
-    # Remove Alpha Channel
-    # imgData = imgData[:,:,:3]
-    # img.close()
-    # return imgData
-    
     #using OpenCV
     img = cv2.imread(filePath, cv2.IMREAD_COLOR)
     img = cv2.resize(img, (500, 200), cv2.INTER_LINEAR)
     return img
 
 # Function to create numpy array dataset
-# @profile
 def createDataset(inpath,outpath):
-
+    print("⌛ Creating Dataset")
     genres = os.listdir(inpath)
-    # h5file = h5py.File(outpath+"/music_data.h5","a")
     images = []
     labels = []
 
@@ -51,44 +38,45 @@ def createDataset(inpath,outpath):
         for filename in filenames:
             filePath = os.path.join(inpath,genre,filename)
             imgData = loadImage(filePath)
-            label = [1. if genre == g else 0. for g in genres]
-            # data.append((imgData,label))
+            imgData = imgData /255
             images.append(imgData)
-            labels.append(label)
-    
 
-    # images = np.array(images, dtype=np.uint8) / 255
-    # npimages = []
-    # for image in images:
-    #     image = np.array(image, dtype=np.uint8) / 255
-    #     npimages.append(image)
-    images = np.array(images)
-    labels = np.array(labels)
-    
+            # Hot encoding of labels
+            label = [1. if genre == g else 0. for g in genres]
+            labels.append(label)
+                
     # data split percentage
     validation = int(validation_ratio * len(images))
     training   = len(images) - validation
 
-    # split data 
+    # split data into training and vaildation sets
     train_x = np.array(images[:training])
     train_y = np.array(labels[:training])
 
     validation_x = np.array(images[-validation:])
     validation_y = np.array(labels[-validation:])
     
+    # save the dataset to disk
     saveDataset(train_x,train_y,validation_x,validation_y,outpath)
 
-# Function to save the dataset as pickle file
+# Function to save the dataset as h5 file
 def saveDataset(train_x,train_y,validation_x,validation_y,path):
+    print("⌛ Saving Dataset")
+
     # create directory if it doesn't exist
     if not os.path.exists(path):
         os.makedirs(path)
 
-    pickle.dump( train_x, open( os.path.join(path,"train_x.p") ,"wb" ))
-    pickle.dump( train_y, open( os.path.join(path,"train_y.p") ,"wb" ))
-    pickle.dump( validation_x, open( os.path.join(path,"validation_x.p") ,"wb" ))
-    pickle.dump( validation_y, open( os.path.join(path,"validation_y.p") ,"wb" ))
-    print("Dataset Saved")
+    with h5py.File(os.path.join(path,"music_data.h5"),"w")as h5file :
+        train = h5file.create_group("training_set")
+        train.create_dataset("train_x",data=train_x)
+        train.create_dataset("train_y",data=train_y)
+
+        validation = h5file.create_group("validation_set")
+        validation.create_dataset("validation_x",data=validation_x)
+        validation.create_dataset("validation_y",data=validation_y)
+
+    print("💾 Dataset Saved")
 
 
 # Function to load the saved dataset to train
@@ -104,5 +92,3 @@ def loadDataset(path,mode="train"):
         print("✅ Dataset Loaded.")
         return train_x, train_y, validation_x, validation_y
     
-# import config
-# createDataset(config.spectrograms,config.datasetPath)

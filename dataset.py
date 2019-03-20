@@ -12,23 +12,36 @@ from PIL import Image
 import numpy as np
 import pickle
 from random import shuffle
+import h5py
+import cv2
 
 from config import validation_ratio
 
 # Load the image and return numpy data
+# @profile
 def loadImage(filePath):
-    img = Image.open(filePath)
-    img = img.resize((500,200), resample=Image.ANTIALIAS)
-    imgData = np.asarray(img, dtype=np.uint8) / 255.
+    # img = Image.open(filePath)
+    # img = img.resize((500,200), resample=Image.ANTIALIAS)
+   
+    # imgData = np.asarray(img, dtype=np.uint8) / 255.
     # Remove Alpha Channel
-    imgData = imgData[:,:,:3]
-    img.close()
-    return imgData
+    # imgData = imgData[:,:,:3]
+    # img.close()
+    # return imgData
+    
+    #using OpenCV
+    img = cv2.imread(filePath, cv2.IMREAD_COLOR)
+    img = cv2.resize(img, (500, 200), cv2.INTER_LINEAR)
+    return img
 
 # Function to create numpy array dataset
+# @profile
 def createDataset(inpath,outpath):
-    data = []
+
     genres = os.listdir(inpath)
+    # h5file = h5py.File(outpath+"/music_data.h5","a")
+    images = []
+    labels = []
 
     for genre in genres:
         filenames = os.listdir(os.path.join(inpath, genre))
@@ -39,26 +52,31 @@ def createDataset(inpath,outpath):
             filePath = os.path.join(inpath,genre,filename)
             imgData = loadImage(filePath)
             label = [1. if genre == g else 0. for g in genres]
-            data.append((imgData,label))
+            # data.append((imgData,label))
+            images.append(imgData)
+            labels.append(label)
+    
 
-    shuffle(data)
-
-    # unzip data from iterator
-    x,y = zip(*data)
+    # images = np.array(images, dtype=np.uint8) / 255
+    # npimages = []
+    # for image in images:
+    #     image = np.array(image, dtype=np.uint8) / 255
+    #     npimages.append(image)
+    images = np.array(images)
+    labels = np.array(labels)
     
     # data split percentage
-    validation = int(validation_ratio * len(x))
-    training   = len(x) - validation
+    validation = int(validation_ratio * len(images))
+    training   = len(images) - validation
 
     # split data 
-    train_x = np.array(x[:training])
-    train_y = np.array(y[:training])
-    
-    validation_x = np.array(x[-validation:])
-    validation_y = np.array(y[-validation:])
+    train_x = np.array(images[:training])
+    train_y = np.array(labels[:training])
+
+    validation_x = np.array(images[-validation:])
+    validation_y = np.array(labels[-validation:])
     
     saveDataset(train_x,train_y,validation_x,validation_y,outpath)
-    
 
 # Function to save the dataset as pickle file
 def saveDataset(train_x,train_y,validation_x,validation_y,path):
@@ -85,3 +103,6 @@ def loadDataset(path,mode="train"):
         
         print("✅ Dataset Loaded.")
         return train_x, train_y, validation_x, validation_y
+    
+# import config
+# createDataset(config.spectrograms,config.datasetPath)

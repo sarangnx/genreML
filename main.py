@@ -19,19 +19,15 @@ args = parser.parse_args()
 
 if "crop" in args.mode:
     sp.crop()
-    sys.exit()
 
 if "segment" in args.mode:
     sp.segment()
-    sys.exit()
 
 if "spectrogram" in args.mode:
     sp.createSpectrogram()
-    sys.exit()
 
 if "dataset" in args.mode:
     ds.createDataset(spectrograms,datasetPath)
-    sys.exit()
 
 
 # List the genres and count

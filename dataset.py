@@ -86,12 +86,12 @@ def loadDataset(path,mode="train"):
         
         with h5py.File(os.path.join(path,"music_data.h5"),"r") as h5file:
             training_set = h5file["training_set"]
-            train_x = training_set["train_x"]
-            train_y = training_set["train_y"]
+            train_x = training_set["train_x"].value
+            train_y = training_set["train_y"].value
 
             validation_set = h5file["validation_set"]
-            validation_x = validation_set["validation_x"]
-            validation_y = validation_set["validation_y"]
+            validation_x = validation_set["validation_x"].value
+            validation_y = validation_set["validation_y"].value
         
         print("✅ Dataset Loaded.")
         return train_x, train_y, validation_x, validation_y

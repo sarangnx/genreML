@@ -29,16 +29,15 @@ if "spectrogram" in args.mode:
 if "dataset" in args.mode:
     ds.createDataset(spectrograms,datasetPath)
 
-
-# List the genres and count
-genres = [ genre for genre in  os.listdir(spectrograms)
-            if os.path.isdir(os.path.join(spectrograms,genre)) ]
-genreNum = len(genres)
-
-# Create Model
-model = createModel([None,200,500,3],genreNum)
-
 if "train" in args.mode:
+
+    # List the genres and count
+    genres = [ genre for genre in  os.listdir(spectrograms)
+            if os.path.isdir(os.path.join(spectrograms,genre)) ]
+    genreNum = len(genres)
+
+    # Create Model
+    model = createModel([None,200,500,3],genreNum)
     
     # Load Dataset
     train_x, train_y, validation_x, validation_y = ds.loadDataset(datasetPath)
